@@ -11,24 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
           pip install pytest flake8 requests
-
       - name: Run unit tests
         run: |
           export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           pytest tests/unit --maxfail=1 --disable-warnings -q
-
       - name: Lint (PEP8)
         run: flake8 . --max-line-length=120
 
@@ -37,18 +33,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Verify files before Docker build
         run: |
           ls -l
           cat requirements-dev.txt || echo "requirements-dev.txt not found!"
-
       - name: Build Docker image
         run: docker build -t ci-cd-flask:${{ github.sha }} .
-
       - name: Run container for regression tests
         run: |
           docker run -d --name cicd_test -p 8000:8000 ci-cd-flask:${{ github.sha }}
@@ -61,7 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.1.0
         env:
@@ -71,7 +62,6 @@ jobs:
             -Dsonar.projectKey=VubohBenoit_ci-cd-flask
             -Dsonar.organization=vubohbenoit
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=$SONAR_TOKEN
 
   deploy:
     needs: sonar
@@ -79,14 +69,13 @@ jobs:
     if: ${{ success() }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Login to Docker Hub
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
-        run: echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
       - name: Push Docker image
         run: |
-          docker build -t $DOCKER_USER/ci-cd-flask:latest .
-          docker push $DOCKER_USER/ci-cd-flask:latest
+          docker build -t ${{ secrets.DOCKER_USER }}/ci-cd-flask:latest .
+          docker push ${{ secrets.DOCKER_USER }}/ci-cd-flask:latest
+
