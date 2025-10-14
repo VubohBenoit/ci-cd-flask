@@ -64,10 +64,14 @@ jobs:
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          organization: "<ton_organisation_sonarcloud>"  # Remplace par ton org SonarCloud
-          token: ${{ secrets.SONAR_TOKEN }}
-          projectKey: "ci-cd-flask"
+          args: >
+            -Dsonar.projectKey=ci-cd-flask
+            -Dsonar.organization=vuboh-benoit
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=$SONAR_TOKEN
 
   deploy:
     needs: sonar
@@ -75,6 +79,7 @@ jobs:
     if: ${{ success() }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Login to Docker Hub
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
