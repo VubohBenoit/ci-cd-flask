@@ -64,11 +64,14 @@ jobs:
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2.1.0
-        with:
-          organization: vuboh-benoit                   # ton organisation SonarCloud
-          projectKey: sqp_96da940952f515dbb35deeaa4e2d8656ea06d781  # ton projectKey SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=sqp_96da940952f515dbb35deeaa4e2d8656ea06d781
+            -Dsonar.organization=vuboh-benoit
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=$SONAR_TOKEN
 
   deploy:
     needs: sonar
