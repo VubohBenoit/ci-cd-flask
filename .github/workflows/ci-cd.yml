@@ -22,6 +22,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
+          pip install pytest flake8 requests
 
       - name: Run unit tests
         run: |
@@ -50,7 +51,7 @@ jobs:
 
       - name: Run container for regression tests
         run: |
-          docker run -d --name cicd_test -p 5000:5000 ci-cd-flask:${{ github.sha }}
+          docker run -d --name cicd_test -p 8000:8000 ci-cd-flask:${{ github.sha }}
           sleep 5
           docker exec cicd_test pytest tests/regression -q
           docker stop cicd_test && docker rm cicd_test
@@ -60,13 +61,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install sonar-scanner
-        run: pip install sonar-scanner
 
-      - name: Run sonar scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: sonar-scanner -Dsonar.projectKey=ci-cd-flask -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2.1.0
+        with:
+          organization: "<ton_organisation_sonarcloud>"  # Remplace par ton org SonarCloud
+          token: ${{ secrets.SONAR_TOKEN }}
+          projectKey: "ci-cd-flask"
 
   deploy:
     needs: sonar
