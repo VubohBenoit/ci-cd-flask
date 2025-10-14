@@ -1,26 +1,25 @@
 FROM python:3.10-slim
 
-# Définir le dossier de travail
 WORKDIR /app
 
 # Copier les fichiers de dépendances
-COPY requirements.txt requirements.txt
-COPY requirements-dev.txt requirements-dev.txt
+COPY requirements.txt .
+COPY requirements-dev.txt .
 
-# Installer les dépendances (prod + dev)
+# Installer les dépendances (production + dev)
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-dev.txt
 
 # Copier le reste du code
-COPY app/ ./app
-COPY tests/ ./tests
+COPY . .
 
 # Exposer le port Flask
 EXPOSE 8000
 
-# Ajouter le répertoire app au PYTHONPATH
-ENV PYTHONPATH="${PYTHONPATH}:/app"
+# Définir la variable d'environnement
+ENV PYTHONPATH=/app
 
-# Lancer l’application Flask
+# Lancer le serveur Flask
 CMD ["python", "app/main.py"]
+
 
