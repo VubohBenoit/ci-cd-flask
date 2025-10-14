@@ -22,10 +22,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
+          pip install pytest flake8
 
       - name: Run unit tests
-        run: pytest tests/unit --maxfail=1 --disable-warnings -q
-
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+          pytest tests/unit --maxfail=1 --disable-warnings -q
+          
       - name: Lint (PEP8)
         run: flake8 . --max-line-length=120
 
