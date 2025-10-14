@@ -28,7 +28,7 @@ jobs:
         run: |
           export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           pytest tests/unit --maxfail=1 --disable-warnings -q
-          
+
       - name: Lint (PEP8)
         run: flake8 . --max-line-length=120
 
@@ -41,6 +41,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Verify files before Docker build
+        run: |
+          ls -l
+          cat requirements-dev.txt || echo "requirements-dev.txt not found!"
+
 
       - name: Build Docker image
         run: docker build -t ci-cd-flask:${{ github.sha }} .

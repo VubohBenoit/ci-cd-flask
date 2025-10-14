@@ -10,16 +10,13 @@ COPY requirements-dev.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-dev.txt
 
-# Copier le reste du code
+# Copier tout le projet
 COPY . .
 
-# Exposer le port Flask
+# Exposer le port
 EXPOSE 8000
 
-# Définir la variable d'environnement
 ENV PYTHONPATH=/app
 
-# Lancer le serveur Flask
 CMD ["python", "app/main.py"]
-
 
