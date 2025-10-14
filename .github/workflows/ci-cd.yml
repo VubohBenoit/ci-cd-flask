@@ -22,7 +22,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install pytest flake8
 
       - name: Run unit tests
         run: |
@@ -35,7 +34,6 @@ jobs:
   docker-build-and-test:
     needs: test-and-lint
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -47,15 +45,14 @@ jobs:
           ls -l
           cat requirements-dev.txt || echo "requirements-dev.txt not found!"
 
-
       - name: Build Docker image
         run: docker build -t ci-cd-flask:${{ github.sha }} .
 
       - name: Run container for regression tests
         run: |
           docker run -d --name cicd_test -p 5000:5000 ci-cd-flask:${{ github.sha }}
-          sleep 3
-          pytest tests/regression -q
+          sleep 5
+          docker exec cicd_test pytest tests/regression -q
           docker stop cicd_test && docker rm cicd_test
 
   sonar:
